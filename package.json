@@ -1,0 +1,23 @@
+{
+    "version": "0.0.1",
+    "name": "@maulingmonkey/modularize-namespace",
+    "description": "Convert a single file, namespace based JavaScript or TypeScript library into a module.",
+    "author": "MaulingMonkey <npm@maulingmonkey.com> (https://maulingmonkey.com/)",
+    "bin": "./bin/modularize-namespace",
+    "bugs": "https://github.com/MaulingMonkey/modularize-namespace/issues",
+    "devDependencies": {
+        "@types/node": "^11.13.0"
+    },
+    "files": [
+        "bin/modularize-namespace",
+        "src/modularize-namespace.js",
+        "LICENSE.txt",
+        "package.json",
+        "README.md"
+    ],
+    "homepage": "https://github.com/MaulingMonkey/modularize-namespace",
+    "keywords": ["typescript", "javascript", "module", "namespace", "build"],
+    "license": "Apache-2.0",
+    "readme": "README.md",
+    "repository": "github:MaulingMonkey/modularize-namespace"
+}

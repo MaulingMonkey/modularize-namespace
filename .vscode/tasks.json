@@ -1,0 +1,30 @@
+{
+    "version": "2.0.0",
+    "problemMatcher": ["$tsc"],
+    "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": true
+    },
+    "windows": {
+        "options": {
+            "env": {
+                "PATH": "${workspaceFolder}\\node_modules\\.bin;${env:PATH}",
+            }
+        }
+    },
+    "tasks": [
+        { "group": "build", "label": "Build typescript",                        "type": "shell", "command": "tsc -b src",       "problemMatcher": ["$tsc"] },
+        { "group": "build", "label": "Build typescript (watch for changes)",    "type": "shell", "command": "tsc -b -w src",    "problemMatcher": ["$tsc-watch"], "isBackground": true, "runOptions": { "runOn": "folderOpen" } },
+        { "group": "build", "label": "Build package",                           "type": "shell", "command": "npm pack",         "problemMatcher": [], "dependsOn": ["Build typescript"] },
+
+        { "group": "none", "label": "Install package (global)",     "type": "shell", "command": "npm i --global maulingmonkey-modularize-namespace-0.0.1.tgz",  "problemMatcher": [] },
+        { "group": "none", "label": "Uninstall package (global)",   "type": "shell", "command": "npm r --global @maulingmonkey/modularize-namespace",           "problemMatcher": [] },
+
+        { "group": "none", "label": "Open GitHub",          "type": "shell", "command": "start \"\" \"https://github.com/MaulingMonkey/modularize-namespace\"",        "problemMatcher": [] },
+        { "group": "none", "label": "Open GitHub issues",   "type": "shell", "command": "start \"\" \"https://github.com/MaulingMonkey/modularize-namespace/issues\"", "problemMatcher": [] },
+    ]
+}

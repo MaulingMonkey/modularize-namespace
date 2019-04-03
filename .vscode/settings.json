@@ -1,0 +1,7 @@
+{
+    "files.exclude": {
+        "**/.git": true,
+        "**/*.tsbuildinfo": true,
+        "src/*.{d.ts,d.ts.map,js,js.map}": true,
+    },
+}
