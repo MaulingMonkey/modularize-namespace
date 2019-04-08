@@ -68,7 +68,7 @@ function parseArguments (args: string[] = process.argv): Arguments | undefined {
                 if (a_output !== undefined) error("Already specified --output");
                 nextParse = function output (arg) {
                     if (!jstExt.test(arg)) error(`--output target must be a .js file`);
-                    let dir = path.dirname(arg);
+                    const dir = path.dirname(arg);
                     if (!fs.existsSync(dir)) error(`--output directory ${JSON.stringify(dir)} does not exist`);
                     a_output = {
                         fileJs: arg,
@@ -146,7 +146,7 @@ interface FindSourceMapResult {
 }
 
 function findSourceMap (input: string): FindSourceMapResult | undefined {
-    let mSourceMap = /^\/\/# sourceMappingURL=(.+(?:\.js\.map|\.d\.ts\.map))$/mi.exec(input);
+    const mSourceMap = /^\/\/# sourceMappingURL=(.+(?:\.js\.map|\.d\.ts\.map))$/mi.exec(input);
     if (!mSourceMap) return undefined;
 
     return {
@@ -186,13 +186,13 @@ function rewriteFileJs (args: Arguments) {
     if (!args.output) return;
     if (!args.namespace) return;
 
-    let inputJs = fs.readFileSync(args.input.fileJs, "utf8");
-    let eol = inferEol(inputJs);
-    let sourceMap = findSourceMap(inputJs) || { before: inputJs, after: "", comment: "", url: "" };
+    const inputJs = fs.readFileSync(args.input.fileJs, "utf8");
+    const eol = inferEol(inputJs);
+    const sourceMap = findSourceMap(inputJs) || { before: inputJs, after: "", comment: "", url: "" };
     if (args.verbose) debug(`js sourceMap: ${JSON.stringify(sourceMap)}`);
 
     // We intentionally format this to keep the line numbers before the source map the same.
-    let outputJs = `${jsPreamble}${sourceMap.before}${jsPostamble(args.namespace, eol)}${sourceMap.comment}${sourceMap.after}`;
+    const outputJs = `${jsPreamble}${sourceMap.before}${jsPostamble(args.namespace, eol)}${sourceMap.comment}${sourceMap.after}`;
 
     fs.writeFileSync(args.output.fileJs, outputJs);
 }
@@ -203,19 +203,19 @@ function rewriteDefTs (args: Arguments) {
     if (!args.namespace) return;
     if (!fs.existsSync(args.input.fileDTs)) return;
 
-    let inputDTs = fs.readFileSync(args.input.fileDTs, "utf8");
-    let eol = inferEol(inputDTs);
-    let sourceMap = findSourceMap(inputDTs) || { before: inputDTs, after: "", comment: "", url: "" };
+    const inputDTs = fs.readFileSync(args.input.fileDTs, "utf8");
+    const eol = inferEol(inputDTs);
+    const sourceMap = findSourceMap(inputDTs) || { before: inputDTs, after: "", comment: "", url: "" };
     if (args.verbose) debug(`d.ts sourceMap: ${JSON.stringify(sourceMap)}`);
 
     // We intentionally format this to keep the line numbers before the source map the same.
-    let outputDTs = `${sourceMap.before}${eol}export = ${args.namespace};${eol}${sourceMap.comment}${sourceMap.after}`;
+    const outputDTs = `${sourceMap.before}${eol}export = ${args.namespace};${eol}${sourceMap.comment}${sourceMap.after}`;
 
     fs.writeFileSync(args.output.fileDTs, outputDTs);
 }
 
 function main () {
-    let args = parseArguments(process.argv);
+    const args = parseArguments(process.argv);
     if (args === undefined) { process.exit(1); return; }
 
     rewriteFileJs(args);
