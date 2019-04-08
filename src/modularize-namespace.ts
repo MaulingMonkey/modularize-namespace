@@ -5,6 +5,8 @@ let anyErrors = false;
 
 const validNamespace = /^([a-zA-Z_][a-zA-Z_0-9]*)(?:\.([a-zA-Z_][a-zA-Z_0-9]*))*$/;
 const jstExt = /\.js$/;
+const watchPollRateMs = 1000;
+const watchDebounceMs = 500;
 
 interface Arguments {
     input: {
@@ -29,6 +31,12 @@ function debug (message: string) {
     process.stderr.write("\n");
 }
 
+function info (message: string) {
+    process.stdout.write("INFO: ");
+    process.stdout.write(message);
+    process.stdout.write("\n");
+}
+
 function error (message: string) {
     process.stderr.write("ERROR: ");
     process.stderr.write(message);
@@ -37,7 +45,7 @@ function error (message: string) {
 }
 
 function printUsage () {
-    process.stderr.write(`Usage:\r\n${process.argv0} global.js --output module.js --namespace namespace.to.export`);
+    process.stderr.write(`Usage:\r\n${process.argv0} [--watch] global.js --output module.js --namespace namespace.to.export`);
 }
 
 function parseArguments (args: string[] = process.argv): Arguments | undefined {
@@ -217,9 +225,26 @@ function rewriteDefTs (args: Arguments) {
 function main () {
     const args = parseArguments(process.argv);
     if (args === undefined) { process.exit(1); return; }
+    const {watch} = args.input;
+    let oldCtimeMs = watch ? fs.statSync(args.input.fileJs).ctimeMs : 0;
 
     rewriteFileJs(args);
     rewriteDefTs(args);
+
+    if (watch) setInterval(function() {
+        let {ctimeMs} = fs.statSync(args.input.fileJs);
+        if (ctimeMs === oldCtimeMs) return;
+        oldCtimeMs = ctimeMs;
+
+        info(`${args.input.fileJs} ctime changed...`);
+        setTimeout(function() {
+            info(`...rebuilding ${args.output.fileJs}...`);
+            rewriteFileJs(args);
+            info(`...rebuilding ${args.output.fileDTs}...`);
+            rewriteDefTs(args);
+            info(`...done!`);
+        }, watchDebounceMs);
+    }, watchPollRateMs);
 }
 
 main();
