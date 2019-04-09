@@ -1,5 +1,5 @@
 {
-    "version": "0.0.3",
+    "version": "0.0.4",
     "name": "@maulingmonkey/modularize-namespace",
     "description": "Convert a single file, namespace based JavaScript or TypeScript library into a module.",
     "author": "MaulingMonkey <npm@maulingmonkey.com> (https://maulingmonkey.com/)",
