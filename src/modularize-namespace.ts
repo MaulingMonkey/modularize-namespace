@@ -114,7 +114,7 @@ function parseArguments (args: string[] = process.argv): Arguments | undefined {
                     a_input = {
                         fileJs:     arg,
                         fileDTs:    arg.replace(jstExt, ".d.ts"),
-                        watch:      true,
+                        watch:      false,
                     };
                 }
                 else {
@@ -194,15 +194,18 @@ function rewriteFileJs (args: Arguments) {
     if (!args.output) return;
     if (!args.namespace) return;
 
+    if (args.verbose) info(`rewriteFileJs: reading ${args.input.fileJs}`);
     const inputJs = fs.readFileSync(args.input.fileJs, "utf8");
+    if (args.verbose) info(`rewriteFileJs: rewriting`);
     const eol = inferEol(inputJs);
     const sourceMap = findSourceMap(inputJs) || { before: inputJs, after: "", comment: "", url: "" };
-    if (args.verbose) debug(`js sourceMap: ${JSON.stringify(sourceMap)}`);
 
     // We intentionally format this to keep the line numbers before the source map the same.
     const outputJs = `${jsPreamble}${sourceMap.before}${jsPostamble(args.namespace, eol)}${sourceMap.comment}${sourceMap.after}`;
 
+    if (args.verbose) info(`rewriteFileJs: writing ${args.output.fileJs}`);
     fs.writeFileSync(args.output.fileJs, outputJs);
+    if (args.verbose) info(`rewriteFileJs: done!`);
 }
 
 function rewriteDefTs (args: Arguments) {
@@ -211,15 +214,18 @@ function rewriteDefTs (args: Arguments) {
     if (!args.namespace) return;
     if (!fs.existsSync(args.input.fileDTs)) return;
 
+    if (args.verbose) info(`rewriteDefTs: reading ${args.input.fileDTs}`);
     const inputDTs = fs.readFileSync(args.input.fileDTs, "utf8");
+    if (args.verbose) info(`rewriteDefTs: rewriting`);
     const eol = inferEol(inputDTs);
     const sourceMap = findSourceMap(inputDTs) || { before: inputDTs, after: "", comment: "", url: "" };
-    if (args.verbose) debug(`d.ts sourceMap: ${JSON.stringify(sourceMap)}`);
 
     // We intentionally format this to keep the line numbers before the source map the same.
     const outputDTs = `${sourceMap.before}${eol}export = ${args.namespace};${eol}${sourceMap.comment}${sourceMap.after}`;
 
+    if (args.verbose) info(`rewriteDefTs: writing ${args.output.fileDTs}`);
     fs.writeFileSync(args.output.fileDTs, outputDTs);
+    if (args.verbose) info(`rewriteDefTs: done!`);
 }
 
 function main () {
@@ -227,11 +233,15 @@ function main () {
     if (args === undefined) { process.exit(1); return; }
     const {watch} = args.input;
     let oldCtimeMs = watch ? fs.statSync(args.input.fileJs).ctimeMs : 0;
+    if (args.verbose) info(`args: ${JSON.stringify(args)}`);
 
     rewriteFileJs(args);
     rewriteDefTs(args);
 
-    if (watch) setInterval(function() {
+    if (!watch) { process.exit(0); error("Should've exited already!"); return; }
+
+    info(`Waiting for ${args.input.fileJs} to change...`);
+    setInterval(function() {
         let {ctimeMs} = fs.statSync(args.input.fileJs);
         if (ctimeMs === oldCtimeMs) return;
         oldCtimeMs = ctimeMs;
